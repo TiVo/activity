@@ -1,0 +1,43 @@
+<html>
+
+<body>
+
+<style>
+  .thumb {
+    height: 75px;
+    border: 1px solid #000;
+    margin: 10px 5px 0 0;
+  }
+</style>
+
+Select a file to run ActivityTest on, and observe results in Java console:<p>
+
+<input type="file" id="files" name="files[]" value="." multiple />
+<output id="list"></output>
+
+<script>
+  
+function setOnFile(cb)
+{
+    function handleFileSelect(evt) {
+        
+    };
+
+    document.getElementById('files').addEventListener('change', 
+    function (evt)
+    {
+        var reader = new FileReader();
+        reader.onload = (function(evt) {
+                cb(evt.target.result);
+        });
+        reader.readAsText(evt.target.files[0]);
+    }, false);
+}
+
+</script>
+
+<script type="text/javascript" src="../../../../dev-host/objroot/test/activity/src/core/ActivityTest.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,16 @@
+# Tests cancelling callmes and timers
+
+act foo foo
+
+fun foo immediately cancelled1
+fun foo cancelcallme cancelled1
+
+fun foo soon soon1
+fun foo soon cancelled2
+fun soon1 cancelcallme soon1
+fun soon1 cancelcallme cancelled2
+
+fun foo timer 1.0 cancelled3
+fun foo timer 0.1 timer1
+fun timer1 canceltimer cancelled3
+fun timer1 cancelcallme cancelled1

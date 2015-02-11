@@ -1,0 +1,37 @@
+# Tests simple message queue functionality; message delivered from one activity
+# to many others
+
+# Create an Activity named "master" that runs initial
+act master initial
+
+# Create a message queue
+fun initial queue queue
+# Create a bunch of receiver Activities
+fun initial act receiver1 receiver_initial
+fun initial act receiver2 receiver_initial
+fun initial act receiver3 receiver_initial
+fun initial act receiver4 receiver_initial_remove
+# Create a sender Activity
+fun initial act sender sender_func
+
+fun sender_func send queue message_1
+fun sender_func send queue message_2
+fun sender_func send queue message_3
+fun sender_func send queue message_4
+fun sender_func send queue message_5
+fun sender_func send queue message_6
+fun sender_func send queue message_7
+fun sender_func send queue message_8
+fun sender_func send queue message_9
+fun sender_func send queue message_10
+fun sender_func send queue message_11
+fun sender_func send queue message_12
+
+fun receiver_initial receiver queue receiver_func
+
+fun receiver_initial_remove receiver queue receiver_func_remove
+
+fun receiver_func printmsg
+
+fun receiver_func_remove printmsg
+fun receiver_func_remove receiver queue null

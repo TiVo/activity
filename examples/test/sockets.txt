@@ -1,0 +1,43 @@
+# Tests simple socket functionality; ping-ping from client to server and
+# back again
+
+# Create an Activity named "server_act" that runs server_initial
+act server_act server_initial
+
+# Have server_act listen on port 4567, and when it is readable, run listen1
+fun server_initial listen 4567 listen_socket
+fun server_initial readable listen_socket listen1
+# And start client activity
+fun server_initial act client_act client_initial
+
+# When listen_socket is readable, accept a socket that will run server_readable
+# on readable
+fun listen1 accept listen_socket server_socket
+fun listen1 readable listen_socket null
+fun listen1 readable server_socket server_readable
+
+# When server socket is readable, receive a ping and stop watching for
+# readable, then when writable call server_writable
+fun server_readable recvping server_socket
+fun server_readable readable server_socket null
+fun server_readable writable server_socket server_writable
+
+# When server socket is writable, send a pong to client
+fun server_writable sendpong server_socket
+# Then stop watching for writable, which means that the server isn't watching
+# anything anymore
+fun server_writable writable server_socket null
+
+# Client activity connets to server and when writable calls client_writable
+fun client_initial connect 4567 client_socket
+fun client_initial writable client_socket client_writable
+
+# When client socket is writable, write a ping
+fun client_writable sendping client_socket
+fun client_writable writable client_socket null
+fun client_writable readable client_socket client_readable
+
+# When client socket is readble, read the pong
+fun client_readable recvpong client_socket
+# Shut down the client, which ends all Activity activity
+fun client_readable shutdown

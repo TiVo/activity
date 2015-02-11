@@ -1,0 +1,11 @@
+######################################################################
+#
+# File: build-websocket-js.hxml
+#
+# Copyright 2014 TiVo Inc. All Rights Reserved.
+#
+######################################################################
+
+-js %OBJDIR%/WebSocketTest.js
+-main WebSocketTest
+-lib activity

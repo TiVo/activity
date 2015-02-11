@@ -1,0 +1,11 @@
+######################################################################
+#
+# File: build-neko.hxml
+#
+# Copyright 2014 TiVo Inc. All Rights Reserved.
+#
+######################################################################
+
+-neko %OBJDIR%/ActivityTest.n
+-main ActivityTest
+-lib activity

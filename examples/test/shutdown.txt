@@ -1,0 +1,16 @@
+# Tests shutting down an Activity in the middle of other activity
+
+act foo foo
+fun foo soon foo_soon_1
+fun foo_soon_1 later foo_later_1
+fun foo_soon_1 soon foo_soon_2
+fun foo_soon_1 timer 0.5 foo_timer_1
+fun foo_soon_1 timer 0.75 foo_timer_2
+fun foo_soon_2 shutdown
+
+act bar bar
+fun bar soon bar_soon_1
+fun bar_soon_1 later bar_later_1
+fun bar_soon_1 soon bar_soon_2
+fun bar_soon_1 timer 0.5 bar_timer_1
+fun bar_soon_1 shutdown

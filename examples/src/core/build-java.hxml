@@ -1,0 +1,11 @@
+######################################################################
+#
+# File: build-java.hxml
+#
+# Copyright 2014 TiVo Inc. All Rights Reserved.
+#
+######################################################################
+
+-java %OBJDIR%/ActivityTest-java
+-main ActivityTest
+-lib activity

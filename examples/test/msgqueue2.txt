@@ -1,0 +1,59 @@
+# Tests simple message queue functionality; message delivered from one activity
+# to many others; in this case, the sends are interleaved with the receives
+
+# Create an Activity named "master" that runs initial
+act master initial
+
+# Create a message queue
+fun initial queue queue
+# Create a bunch of receiver Activities
+fun initial act receiver1 receiver_initial
+fun initial act receiver2 receiver_initial
+fun initial act receiver3 receiver_initial
+fun initial act receiver4 receiver_initial_remove
+# Create a sender Activity
+fun initial act sender sender_func_1
+
+fun sender_func_1 send queue message_1
+fun sender_func_1 soon sender_func_2
+
+fun sender_func_2 send queue message_2
+fun sender_func_2 soon sender_func_3
+
+fun sender_func_3 send queue message_3
+fun sender_func_3 soon sender_func_4
+
+fun sender_func_4 send queue message_4
+fun sender_func_4 soon sender_func_5
+
+fun sender_func_5 send queue message_5
+fun sender_func_5 soon sender_func_6
+
+fun sender_func_6 send queue message_6
+fun sender_func_6 soon sender_func_7
+
+fun sender_func_7 send queue message_7
+fun sender_func_7 soon sender_func_8
+
+fun sender_func_8 send queue message_8
+fun sender_func_8 soon sender_func_9
+
+fun sender_func_9 send queue message_9
+fun sender_func_9 soon sender_func_10
+
+fun sender_func_10 send queue message_10
+fun sender_func_10 soon sender_func_11
+
+fun sender_func_11 send queue message_11
+fun sender_func_11 soon sender_func_12
+
+fun sender_func_12 send queue message_12
+
+fun receiver_initial receiver queue receiver_func
+
+fun receiver_initial_remove receiver queue receiver_func_remove
+
+fun receiver_func printmsg
+
+fun receiver_func_remove printmsg
+fun receiver_func_remove receiver queue null

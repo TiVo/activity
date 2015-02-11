@@ -1,0 +1,4 @@
+# Simply run a single "soon" callback.  Tests the most basic functionality.
+act foo initial
+
+fun initial soon soon1

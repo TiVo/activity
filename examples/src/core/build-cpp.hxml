@@ -1,0 +1,11 @@
+######################################################################
+#
+# File: build-cpp.hxml
+#
+# Copyright 2014 TiVo Inc. All Rights Reserved.
+#
+######################################################################
+
+-cpp %OBJDIR%/ActivityTest-cpp
+-main ActivityTest
+-lib activity

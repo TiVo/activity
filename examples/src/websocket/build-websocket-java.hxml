@@ -1,0 +1,11 @@
+######################################################################
+#
+# File: build-websocket-java.hxml
+#
+# Copyright 2014 TiVo Inc. All Rights Reserved.
+#
+######################################################################
+
+-java %OBJDIR%/WebSocketTest-java
+-main WebSocketTest
+-lib activity

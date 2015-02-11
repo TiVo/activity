@@ -1,0 +1,11 @@
+######################################################################
+#
+# File: build-js.hxml
+#
+# Copyright 2014 TiVo Inc. All Rights Reserved.
+#
+######################################################################
+
+-js %OBJDIR%/ActivityTest.js
+-main ActivityTest
+-lib activity

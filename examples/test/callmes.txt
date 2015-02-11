@@ -1,0 +1,23 @@
+# Tests various callme types
+
+act foo foo
+fun foo immediately foo_1
+fun foo_1 soon foo_2
+fun foo_2 soon foo_3
+fun foo_2 soon foo_4
+fun foo_2 later foo_5
+fun foo_4 immediately foo_6
+
+act bar bar
+fun bar soon bar_1
+fun bar soon bar_2
+fun bar immediately bar_3
+fun bar_3 soon bar_4
+
+act baz baz
+fun baz later baz_1
+fun baz later baz_2
+fun baz_2 soon baz_3
+fun baz_2 immediately baz_4
+fun baz_4 later baz_5
+fun baz_5 soon baz_6
