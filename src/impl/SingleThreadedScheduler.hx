@@ -1,9 +1,3 @@
-/** *************************************************************************
- * SingleThreadedScheduler.hx
- *
- * Copyright 2014 TiVo, Inc.
- ************************************************************************** **/
-
 package activity.impl;
 
 import activity.Activity;

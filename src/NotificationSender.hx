@@ -1,9 +1,3 @@
-/** *************************************************************************
- * NotificationSender.hx
- *
- * Copyright 2014 TiVo, Inc.
- ************************************************************************** **/
-
 package activity;
 
 import activity.NotificationQueue;

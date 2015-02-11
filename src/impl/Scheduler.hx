@@ -1,9 +1,3 @@
-/** *************************************************************************
- * Scheduler.hx
- *
- * Copyright 2014 TiVo, Inc.
- ************************************************************************** **/
-
 package activity.impl;
 
 // cpp, neko, cs, and java targets support threading
