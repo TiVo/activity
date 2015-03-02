@@ -1,3 +1,3 @@
--neko %OBJDIR%/ActivityTest.n
+-neko ../../bin/ActivityTest.n
 -main ActivityTest
 -lib activity
