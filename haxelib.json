@@ -1,6 +1,6 @@
 {
   "name": "activity",
-  "url": "s://github.com/TiVo/activity",
+  "url": "https://github.com/TiVo/activity",
   "license": "Apache 2.0",
   "tags": [ "haxe", "activity" ],
   "description": "The Activity API is designed to enable a cross-platform mechanism for allowing multiple contexts of execution (not called 'threads' here because they do not represent true threads) to co-exist within a single program.",
