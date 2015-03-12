@@ -1,14 +1,12 @@
 {
   "name": "activity",
-  "url": "http://gamehaxe.com/",
-  "license": "BSD",
-  "tags": [ "haxe", "hxcpp", "cpp" ],
-  "description": "Hxcpp is the runtime support for the c++ backend of the haxe compiler.  This release constains the headers, libraries and support code required to generate a fully compiled executable from haxe code.",
-  "version": "3.1.0",
-  "releasenote": "See Changes.md",
-  "contributors": ["gamehaxe"],
-  "binaryversion": 15,
+  "url": "s://github.com/TiVo/activity",
+  "license": "Apache 2.0",
+  "tags": [ "haxe", "activity" ],
+  "description": "The Activity API is designed to enable a cross-platform mechanism for allowing multiple contexts of execution (not called 'threads' here because they do not represent true threads) to co-exist within a single program.",
+  "version": "0.1.0",
+  "contributors": [ "TiVo" ],
+  "binaryversion": 1,
   "dependencies": {
-
   }
 }
