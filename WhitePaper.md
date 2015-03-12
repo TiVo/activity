@@ -1,7 +1,8 @@
 Copyright © 2015 TiVo Inc, Licensed under the Apache License, Version 2.0
 
 
-= Introducing the Activity Haxelib =
+Introducing the Activity Haxelib
+================================
 
 The activity haxelib is a haxe library whose purpose is to provide a thread-like mechanism for haxe programs that is supported for all haxe targets.  Programs written to use the activity haxelib will run using multiple system threads to enable best performance on multithread-capable targets, but will fall back to single threaded operation on multithread-incapable targets.
 
@@ -12,7 +13,8 @@ There are several advantages to using the activity haxelib over explicit multith
 * The mechanisms provided for inter-activity communication in the activity haxelib is a richer set than is available using system threads.  For example, the activity haxelib provides a worker pool for easily managing background work, whereas the system thread APIs provide no such mechanism (you'd have to roll your own).
 
 
-= What is an "Activity"? =
+What is an "Activity"?
+======================
 
 An activity is similar to a thread, but different in some important ways.  A traditional thread runs a single function to conclusion and then terminates, and is expected to be scheduled to run by the operating system in a time-sliced manner with other threads.  A thread can assume complete uninterrupted control over its context of execution, and yet the operating system (or virtual machine) allows multiple threads to be executed simultaneously.
 
@@ -22,7 +24,8 @@ Activities are well suited to event-driven programming methodologies, where the 
 
 
 
-= How are Activities Created and Used? =
+How are Activities Created and Used?
+====================================
 
 Activities are not represented by user-addressable objects.  Instead, an Activity is virtually represented as an accumulation of scheduled function callbacks that are to be run at some future time.  Any function call scheduled subsequently by those function calls becomes itself part of the activity.
 
@@ -34,7 +37,8 @@ However, because activities may run concurrently on multi-threaded systems, it i
 
 
 
-= How Can Activities Allow Better Inter-Haxelib Cooperation? =
+How Can Activities Allow Better Inter-Haxelib Cooperation?
+==========================================================
 
 There are some haxelibs that want to control the "main loop" (i.e. the main context of execution entered in the main() function and consisting of an event processing loop).  An example is the OpenFL haxelib, which generates a wrapper class that implements main() and in that implementation runs a loop that processes user input events, and periodically polls other event sources and performs frame rendering.
 
@@ -58,6 +62,7 @@ This could be implemented by an activity-aware haxelib and would create a new Me
 A second haxelib could be initialized in a similar manner, and its message handling callbacks would be interleaved with those of the first library on single threaded platforms, or run in parallel on multithreaded platforms.
 
 
-= Further Reading =
+Further Reading
+===============
 
 A more technical description of how the activity haxelib works, what its component pieces are, what features they have, and how they are used, is available as  README.md file in the activity haxelib itself.
