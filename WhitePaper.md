@@ -20,7 +20,7 @@ An activity is similar to a thread, but different in some important ways.  A tra
 
 Activities must be coded to be explicitly aware of the fact that they cannot assume complete control of their execution environment, and so must perform work in incremental steps which can be interleaved.  In other words, whereas a true thread runs a single function to completion, an activity spans many function calls, each of which must operate for a short enough time interval that no activity which has a function scheduled to be called on it is made to wait too long.  On a multithread-capable system, the individual short-lived activity function calls are scheduled on multiple system threads concurrently, allowing for concurrent execution and faster performace, but these functions, by their nature of having been coded to adhere to the activity API, can also be scheduled sequentially on a multithread-incapable system.
 
-Activities are well suited to event-driven programming methodologies, where the asynchornous delivery of an event (such as a network packet, user input, or a timer) causes a small amount of work to be done to process the event, at which time control can be returned to the activity system, possibly with follow-on work scheduled for a subequent callback.  Work of longer duration is more difficult to adapt to the activity model, but can still be adapted if the work can be broken up into discrete chunks.
+Activities are well suited to event-driven programming methodologies, where the asynchronous delivery of an event (such as a network packet, user input, or a timer) causes a small amount of work to be done to process the event, at which time control can be returned to the activity system, possibly with follow-on work scheduled for a subequent callback.  Work of longer duration is more difficult to adapt to the activity model, but can still be adapted if the work can be broken up into discrete chunks.
 
 
 
@@ -31,16 +31,16 @@ Activities are not represented by user-addressable objects.  Instead, an Activit
 
 An activity is created by calling the Activity.create() function, which will schedule a function to be called in the context of the newly created Activity.  Functions run in the context of an activity can schedule more work (as a simple callback scheduled to run as soon as possible, or as a timer scheduled to be called only at a given time), or set the Activity up to be the listener for one of several event sources: message queues, notification queues, and sockets.
 
-There is no way to directly address an activity once it has been created, so typically all of the event sources that an activity will use will be set up before the activity is even created, so that the creator of the activity will have a means to communicate with it.  Because the activity system runs caller-provided function closures, and function closures can reference variables from the context in which they were created, child activities can share objects with the parent activity naturally just be referring to the same variable.
+There is no way to directly address an activity once it has been created, so typically all of the event sources that an activity will use will be set up before the activity is even created, so that the creator of the activity will have a means to communicate with it.  Because the activity system runs caller-provided function closures, and function closures can reference variables from the context in which they were created, child activities can share objects with the parent activity naturally just by referring to the same variable.
 
 However, because activities may run concurrently on multi-threaded systems, it is imperative that activities only share objects that have been specifically designed to work within the activity system, such as MessageQueue, NotificationQueue, and Socket.  These objects may be created ahead of time by a parent Activity, and then passed to a child Activity (via function closure), as a means for communicating between parent and child.
 
 
 
-How Can Activities Allow Better Inter-Haxelib Cooperation?
-==========================================================
+How Can Activities Allow Broader Use and Sharing of Haxe-Based Projects?
+========================================================================
 
-There are some haxelibs that want to control the "main loop" (i.e. the main context of execution entered in the main() function and consisting of an event processing loop).  An example is the OpenFL haxelib, which generates a wrapper class that implements main() and in that implementation runs a loop that processes user input events, and periodically polls other event sources and performs frame rendering.
+There are some haxelibs and haxe programs that want to control the "main loop" (i.e. the main context of execution entered in the main() function and consisting of an event processing loop).  An example is the OpenFL haxelib, which generates a wrapper class that implements main() and in that implementation runs a loop that processes user input events, and periodically polls other event sources and performs frame rendering.
 
 When a haxelib expects to not return control to a caller of one of its functions or otherwise takes control of the main loop, it cannot be used with another haxelib which expects to do the same thing.  The first haxelib would have to run its main loop to completion before the second haxelib would be given an opportunity to do the same.
 

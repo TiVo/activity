@@ -50,6 +50,7 @@ Activity
 
 The Activity class is the main class of the API.  All Haxe programs that use the Activity API should set up their main function more or less as follows:
 
+```
 static function main()
 {
    // ... do any stuff not related to Activities ...
@@ -64,6 +65,7 @@ static function main()
    // on Activities having all completed already, having not even started yet,
    // or currently being in progress.
 }
+```
 
 
 To create a new Activity, which is a context of execution that can run functions independently of any other Activities, and possibly in parallel with them, use Activity.create().  This function takes a closure to run as the first function run within the Activity, and an optional name of that Activity, to be used during Activity diagnostics.
@@ -72,6 +74,7 @@ The main function of an Activity might do all of the work that the Activity will
 
 Note that all functions ever registered to be called in an Activity, including the main function specified for the Activity, are always called within the context of the Activity.  For example, a more concise way to start an Activity associated with a single object is:
 
+```
 static function main()
 {
     var messageQueue = new MessageQueue<String>();
@@ -116,7 +119,7 @@ class MyActivity
        Timer.once(this.onTimer, 5.0);
     }
 }
-
+```
 
 Mutex
 -----
@@ -168,6 +171,7 @@ WorkerPool
 
 Manages a pool of worker Activities that can do work concurrently on multithreaded platforms.  Example of use:
 
+```
 // Example work unit.  This work unit has both an input and an output, but
 // some worker pools may not have any output.
 typedef WorkUnit = { input : Float, output : Float };
@@ -216,6 +220,7 @@ class WorkerPoolExample
 
     private var mWorkerPool : WorkerPool<WorkUnit>;
 }
+```
 
 
 Scheduling
