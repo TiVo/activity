@@ -1,3 +1,12 @@
--cpp ../../bin/ActivityTest-cpp
+######################################################################
+#
+# File: build-cpp.hxml
+#
+# Copyright 2014 TiVo Inc. All Rights Reserved.
+#
+######################################################################
+
+-cpp %OBJDIR%/ActivityTest-cpp
+-D AUDIT_ACTIVITY
 -main ActivityTest
 -lib activity

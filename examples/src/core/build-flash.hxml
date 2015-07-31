@@ -1,3 +1,12 @@
--swf ../../bin/ActivityTest.swf
+######################################################################
+#
+# File: build-flash.hxml
+#
+# Copyright 2014 TiVo Inc. All Rights Reserved.
+#
+######################################################################
+
+-swf %OBJDIR%/ActivityTest.swf
+-D AUDIT_ACTIVITY
 -main ActivityTest
 -lib activity

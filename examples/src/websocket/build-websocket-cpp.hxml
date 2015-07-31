@@ -1,3 +1,11 @@
--cpp ../../bin/WebSocketTest-cpp
+######################################################################
+#
+# File: build-websocket-cpp.hxml
+#
+# Copyright 2014 TiVo Inc. All Rights Reserved.
+#
+######################################################################
+
+-cpp %OBJDIR%/WebSocketTest-cpp
 -main WebSocketTest
 -lib activity

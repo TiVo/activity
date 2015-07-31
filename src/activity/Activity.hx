@@ -1,18 +1,9 @@
-/**
- * Copyright 2015 TiVo, Inc.
+/** *************************************************************************
+ * Activity.hx
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- **/
+ * Copyright 2014 TiVo, Inc.
+ ************************************************************************** **/
+
 package activity;
 
 import activity.impl.Scheduler;
@@ -165,41 +156,20 @@ class Activity
 
     private function new(name : String)
     {
-        var parentActivity = Scheduler.getCurrentActivity();
-        mID = ((parentActivity == null) ?
-               getNextMainID() :
-               parentActivity.getNextChildID());
-        mName = (name == null) ? "" : name;
-        mNextChildActivityNumber = 0;
-    }
-
-    private function getNextChildID() : String
-    {
-        // No locking is needed.  Can only be called from create() called by
-        // this Activity itself, and this Activity can only be run by one
-        // thread at a time, therefore create() can only be called by a given
-        // Activity by one thread at a time, therefore the member variables of
-        // that Activity can only be used by one thread at a time.
-        return mID + "." + mNextChildActivityNumber++;
-    }
-
-    private static function getNextMainID() : String
-    {
-        // No locking is needed.  Can only be called from create() called by a
-        // non-Activity thread, and the contract for the Activity API says
-        // that only one non-Activity thread is allowed to call create() at
-        // once.  Therefore this code can only be called by one thread at a
-        // time.
-        return Std.string(gNextMainActivityNumber++);
+        gLock.lock();
+        mID = haxe.Int64.toStr(gNextActivityNumber);
+        gNextActivityNumber = haxe.Int64.add(gNextActivityNumber, gOne);
+        gLock.unlock();
     }
 
     // ID of this activity
     private var mID : String;
     // Name of this activity
     private var mName : String;
-    // Next number to use in the ID of the next created child activity
-    private var mNextChildActivityNumber : Int;
-
-    // Next number to use in the ID of a main activity
-    private static var gNextMainActivityNumber : Int = 0;
+    // Next number to use for a top-level activity
+    private static var gNextActivityNumber : haxe.Int64 = haxe.Int64.ofInt(0);
+    // Lock for gNextActivityNumber
+    private static var gLock : Mutex = new Mutex();
+    // Too bad haxe.Int64 doesn't have addInt() or inc()
+    private static var gOne : haxe.Int64 = haxe.Int64.ofInt(1);
 }

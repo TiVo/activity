@@ -1,18 +1,9 @@
-/**
- * Copyright 2015 TiVo, Inc.
+/** *************************************************************************
+ * TimerScheduler.hx
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- **/
+ * Copyright 2014 TiVo, Inc.
+ ************************************************************************** **/
+
 package activity.impl;
 
 import activity.Activity;
@@ -77,7 +68,7 @@ class TimerScheduler
         }
         var s = Scheduled.acquire_callme(gCurrentActivity, cancellable, f,
                                          null);
-        pushHead(gImmediate, s);
+        gImmediate.pushBeforeHead(s);
         gCurrentActivity.immediateCount += 1;
         if (gRunTimer == null) {
             gRunTimer = new RunTimer(0);
@@ -97,12 +88,10 @@ class TimerScheduler
         if (activityImpl.shutdown) {
             throw ActivityError.Shutdown;
         }
-        /**
-         * If onShutdown is not null, schedule a closure that schedules it
-         * onto the calling Activity when the target activity actually shuts
-         * down, catching and ignoring a shutdown error if the calling
-         * activity itself has already shut down.
-         **/
+        // If onShutdown is not null, schedule a closure that schedules it
+        // onto the calling Activity when the target activity actually shuts
+        // down, catching and ignoring a shutdown error if the calling
+        // activity itself has already shut down.
         var s = Scheduled.acquire_callme(activityImpl, cancellable, f,
                                          (onShutdown == null) ? null :
                                          function ()
@@ -115,8 +104,8 @@ class TimerScheduler
                                                  // Ignore shutdown error here
                                              }
                                          });
-        pushTail(gNormal, s);
-        s.activity.normalCount += 1;
+        gNormal.pushAfterTail(s);
+        (cast(s.activity, ActivityImpl)).normalCount += 1;
         if (gRunTimer == null) {
             gRunTimer = new RunTimer(0);
         }
@@ -140,7 +129,7 @@ class TimerScheduler
         }
         var s = Scheduled.acquire_callme(gCurrentActivity, cancellable, f,
                                          null);
-        pushTail(gLater, s);
+        gLater.pushAfterTail(s);
         if (gRunTimer == null) {
             gRunTimer = new RunTimer(0);
         }
@@ -163,54 +152,42 @@ class TimerScheduler
         }
 
         var s : Scheduled;
-        /**
-         * If the timeout is 0 or less, then the timer is already expired; no
-         * reason to put it into the "future" queue, just put it immediately at
-         * the end of the "already expired timer" queue
-         **/
+        // If the timeout is 0 or less, then the timer is already expired; no
+        // reason to put it into the "future" queue, just put it immediately at
+        // the end of the "already expired timer" queue
         if (timeout <= 0) {
             s = Scheduled.acquire_timer(gCurrentActivity, cancellable, f, 0);
             gCurrentActivity.normalCount += 1;
-            pushTail(gExpired, s);
+            gExpired.pushAfterTail(s);
         }
-        /**
-         * Insert it into the appropriate part of the future queue
-         **/
+        // Insert it into the appropriate part of the future queue
         else {
             s = Scheduled.acquire_timer(gCurrentActivity, cancellable, f,
                                         now() + timeout);
-            /**
-             * If it's the first timer, push it onto the tail of the empty
-             * list
-             **/
+            // If it's the first timer, push it onto the tail of the empty
+            // list
             if (gFuture.head == null) {
-                pushTail(gFuture, s);
+                gFuture.pushAfterTail(s);
             }
-            /**
-             * Else if it's before the head, put it at the head
-             **/
+            // Else if it's before the head, put it at the head
             else if (s.when < gFuture.head.when) {
-                pushHead(gFuture, s);
+                gFuture.pushBeforeHead(s);
             }
-            /**
-             * Else, find the timer that it should be inserted before, and
-             * insert before it
-             **/
+            // Else, find the timer that it should be inserted before, and
+            // insert before it
             else {
                 var before = gFuture.head.next;
                 while ((before != gFuture.head) && (s.when >= before.when)) {
                     before = before.next;
                 }
-                insert(gFuture, before, s);
+                gFuture.insertBefore(before, s);
             }
             gCurrentActivity.futureCount += 1;
-            /**
-             * If the nearest timeout is now earlier than it was, update the
-             * nearest timeout for this activity; this is used when scoring
-             * the activities to choose the "most likely to be able to
-             * immediately execute a call" functionality of the choose()
-             * function
-             **/
+            // If the nearest timeout is now earlier than it was, update the
+            // nearest timeout for this activity; this is used when scoring
+            // the activities to choose the "most likely to be able to
+            // immediately execute a call" functionality of the choose()
+            // function
             if (s.when < gCurrentActivity.nearestTimeout) {
                 gCurrentActivity.nearestTimeout = s.when;
             }
@@ -229,27 +206,32 @@ class TimerScheduler
      **/
     public static function cancel(cancelId : CancelId)
     {
+        var f = function (s : Scheduled) : Bool
+        {
+            return (s.cancelId == cancelId);
+        };
         var s : Scheduled;
         // Most likely to cancel future timers
-        if ((s = removeByCancelId(gFuture, cancelId)) != null) {
-            s.activity.futureCount -= 1;
-            removedTimer(s.activity);
+        if ((s = gFuture.findAndRemove(f)) != null) {
+            var activityImpl = cast(s, ActivityImpl);
+            activityImpl.futureCount -= 1;
+            removedTimer(activityImpl);
         }
         // Next most likely to cancel expired timers
-        else if ((s = removeByCancelId(gExpired, cancelId)) != null) {
-            s.activity.normalCount -= 1;
+        else if ((s = gExpired.findAndRemove(f)) != null) {
+            (cast(s.activity, ActivityImpl)).normalCount -= 1;
         }
         // Next most likely to cancel normal callmes
-        else if ((s = removeByCancelId(gNormal, cancelId)) != null) {
-            s.activity.normalCount -= 1;
+        else if ((s = gNormal.findAndRemove(f)) != null) {
+            (cast(s.activity, ActivityImpl)).normalCount -= 1;
         }
         // Next most likely to cancel later callmes
-        else if ((s = removeByCancelId(gLater, cancelId)) != null) {
+        else if ((s = gLater.findAndRemove(f)) != null) {
             // later callbacks are not counted
         }
         // Least likely to cancel immediate callmes
-        else if ((s = removeByCancelId(gImmediate, cancelId)) != null) {
-            s.activity.immediateCount -= 1;
+        else if ((s = gImmediate.findAndRemove(f)) != null) {
+            (cast(s.activity, ActivityImpl)).immediateCount -= 1;
         }
 
 #if AUDIT_ACTIVITY
@@ -278,15 +260,15 @@ class TimerScheduler
         collectForShutdown(gCurrentActivity, all);
 
         // Eliminate all Scheduled objects for them all
-        var test = function(scheduled : Scheduled)
+        var test = function(s : Scheduled)
                    {
-                       return all.exists(scheduled.activity);
+                       return all.exists(cast s.activity);
                    };
-        removeActivities(gImmediate, test);
-        removeActivities(gNormal, test);
-        removeActivities(gLater, test);
-        removeActivities(gExpired, test);
-        removeActivities(gFuture, test);
+        gImmediate.removeMatches(test, onScheduledActivityRemoved);
+        gNormal.removeMatches(test, onScheduledActivityRemoved);
+        gLater.removeMatches(test, onScheduledActivityRemoved);
+        gExpired.removeMatches(test, onScheduledActivityRemoved);
+        gFuture.removeMatches(test, onScheduledActivityRemoved);
 
         // Remove this activity object from its parent.  This will be the only
         // remaining reference to the Activity, outside of any Notifier
@@ -448,22 +430,23 @@ class TimerScheduler
         var now = now();
         var first = gFuture.head;
         while ((gFuture.head != null) && (gFuture.head.when <= now)) {
-            var expired = popHead(gFuture);
-            pushTail(gExpired, expired);
-            expired.activity.normalCount += 1;
-            removedTimer(expired.activity);
+            var expired = gFuture.popHead();
+            gExpired.pushAfterTail(expired);
+            var activityImpl : ActivityImpl = cast expired.activity;
+            activityImpl.normalCount += 1;
+            removedTimer(activityImpl);
         }
     }
 
     public static function runOnce()
     {
         // Run all immediate calls if there are any
-        var s = popHead(gImmediate);
+        var s = gImmediate.popHead();
         if (s != null) {
             do {
-                s.activity.immediateCount -= 1;
+                (cast(s.activity, ActivityImpl)).immediateCount -= 1;
                 runScheduled(s);
-                s = popHead(gImmediate);
+                s = gImmediate.popHead();
             } while (s != null);
         }
         // Else run something else ...
@@ -472,23 +455,23 @@ class TimerScheduler
             expireTimers();
             
             // Run an expired timer if there is one
-            var s = popHead(gExpired);
+            var s = gExpired.popHead();
             if (s != null) {
-                s.activity.normalCount -= 1;
+                (cast(s.activity, ActivityImpl)).normalCount -= 1;
                 runScheduled(s);
             }
             // Else run something else ...
             else {
                 // Run a normal call if there is one
-                s = popHead(gNormal);
+                s = gNormal.popHead();
                 if (s != null) {
-                    s.activity.normalCount -= 1;
+                    (cast(s.activity, ActivityImpl)).normalCount -= 1;
                     runScheduled(s);
                 }
                 // Else run something else ...
                 else {
                     // Run later call if there is one
-                    s = popHead(gLater);
+                    s = gLater.popHead();
                     if (s != null) {
                         runScheduled(s);
                     }
@@ -559,23 +542,12 @@ class TimerScheduler
         // Make sure that gCurrentActivity is set to the activity of the
         // callback so that the code run in the callback knows what the
         // "current activity" is
-        gCurrentActivity = s.activity;
+        gCurrentActivity = cast s.activity;
         // Run the callback in a try block that catches exceptions and feeds
         // them to the "uncaught" function of the activity if there is one
         var thrown : Dynamic = null;
         try {
-            // If the scheduled callback had a timer function in f_timer, then
-            // it was a scheduled timer callback and needs to be called with
-            // the "number of seconds past the scheduled timeout that this
-            // callback is occurring"
-            if (s.f_timer != null) {
-                s.f_timer(now() - s.when);
-            }
-            // Else the scheduled callback must have a normal call me function
-            // in f_callme, which is called with no arguments
-            else {
-                s.f_callme();
-            }
+            s.run();
         }
         // On any exception, store the caught exception in the thrown variable
         catch (e : Dynamic) {
@@ -618,134 +590,22 @@ class TimerScheduler
         gCurrentActivity = null;
     }
 
-    // Helper function to push a Scheduled object after the tail of a
-    // ScheduledList
-    private static function pushTail(list : ScheduledList, e : Scheduled)
+    private static function onScheduledActivityRemoved(s : Scheduled)
     {
-        if (list.head == null) {
-            e.prev = e;
-            e.next = e;
-            list.head = e;
-        }
-        else {
-            e.next = list.head;
-            e.prev = list.head.prev;
-            list.head.prev.next = e;
-            list.head.prev = e;
-        }
-    }
-
-    // Helper function to push a Scheduled object before the head of a
-    // ScheduledList
-    private static function pushHead(list : ScheduledList, e : Scheduled)
-    {
-        pushTail(list, e);
-        list.head = e;
-    }
-
-    // Helper function to insert a Scheduled object into a ScheduledList,
-    // just before a Scheduled object already on the ScheduledList
-    private static function insert(list : ScheduledList, before : Scheduled,
-                                   toInsert : Scheduled)
-    {
-        toInsert.next = before;
-        toInsert.prev = before.prev;
-        before.prev.next = toInsert;
-        before.prev = toInsert;
-    }
-
-    // Helper function to pop the head of a ScheduledList
-    private static function popHead(list : ScheduledList) : Scheduled
-    {
-        if (list.head == null) {
-            return null;
-        }
-        var ret = list.head;
-        if (list.head.next == list.head) {
-            list.head = null;
-        }
-        else {
-            list.head.prev.next = list.head.next;
-            list.head.next.prev = list.head.prev;
-            list.head = list.head.next;
-        }
-        ret.prev = null;
-        ret.next = null;
-        return ret;
-    }
-
-    // Helper function to remove a Scheduled object from a ScheduledList,
-    // where the Scheduled object has a given cancel id.  Returns the removed
-    // Scheduled object, or null if none was removed
-    private static function removeByCancelId(list : ScheduledList,
-                                             cancelId : CancelId) : Scheduled
-    {
-        if (list.head == null) {
-            return null;
-        }
-
-        var current = list.head;
-        do {
-            if (current.cancelId == cancelId) {
-                if (current == list.head) {
-                    if (current.next == current) {
-                        list.head = null;
-                        return current;
-                    }
-                    else {
-                        list.head = current.next;
-                    }
-                }
-                current.prev.next = current.next;
-                current.next.prev = current.prev;
-                return current;
-            }
-            current = current.next;
-        } while (current != list.head);
-
-        return null;
-    }
-
-    // Helper function to remove all Scheduled objects from a ScheduledList
-    // for a given Activity.
-    private static function removeActivities(list : ScheduledList,
-                                             test : Scheduled -> Bool)
-    {
-        if (list.head == null) {
-            return;
-        }
-
-        // Look at the entire list except for the head
-        var current = list.head.next;
-        while (current != list.head) {
-            if (test(current)) {
-                if (current.onShutdown != null) {
-                    current.onShutdown();
-                }
-                current.prev.next = current.next;
-                current.next.prev = current.prev;
-            }
-            current = current.next;
-        }
-
-        // Now look at the head
-        if (test(current)) {
-            if (current.onShutdown != null) {
-                current.onShutdown();
-            }
-            popHead(list);
+        if (s.onShutdown != null) {
+            s.onShutdown();
         }
     }
 
     private static var gCurrentActivity : ActivityImpl = null;
     private static var gRunTimer : RunTimer = null;
     private static var gCompletion : Void -> Void = null;
-    private static var gImmediate : ScheduledList = { head : null };
-    private static var gNormal : ScheduledList = { head : null };
-    private static var gLater : ScheduledList = { head : null };
-    private static var gExpired : ScheduledList = { head : null };
+    private static var gImmediate : ScheduledList = new ScheduledList();
+    private static var gNormal : ScheduledList = new ScheduledList();
+    private static var gLater : ScheduledList = new ScheduledList();
+    private static var gExpired : ScheduledList = new ScheduledList();
     // Arranged in increasing 'when' order
-    private static var gFuture : ScheduledList = { head : null };
+    private static var gFuture : ScheduledList = new ScheduledList();
 #if js
     private static var gWebSockets : WebSocketMap = new WebSocketMap();
     private static var gWebSocketCount : Int = 0;
@@ -753,7 +613,7 @@ class TimerScheduler
 }
 
 
-private typedef ScheduledList = { head : Scheduled };
+private typedef ScheduledList = FastList<Scheduled>;
 
 #if js
 private typedef WebSocketMap = haxe.ds.ObjectMap<js.html.WebSocket, Bool>;
@@ -829,82 +689,6 @@ private class ActivityImpl extends Activity
         // Return the nearest timeout
         return this.nearestTimeout;
     }
-}
-
-
-private class Scheduled
-{
-    public var cancelId(default, null) : CancelId;
-    public var activity(default, null) : ActivityImpl;
-    // The following could be handled by an enum, but enums churn, and to
-    // avoid that, don't use an enum
-    public var f_callme(default, null) : Void -> Void;      // only for callme
-    public var onShutdown(default, null) : Void -> Void;    // only for callme
-    public var f_timer(default, null) : Float -> Void;      // only for timer
-    public var when(default, null) : Float;                 // only for timer
-    public var prev : Scheduled;
-    public var next : Scheduled;
-
-    // Use pooling to reduce churn on these very frequently allocated objects
-    public static function acquire_callme(activity : ActivityImpl,
-                                          cancellable : Bool,
-                                          f : Void -> Void,
-                                          onShutdown : Void -> Void) : Scheduled
-    {
-        var ret = acquire(activity, cancellable);
-        ret.f_callme = f;
-        ret.onShutdown = onShutdown;
-        // prev and null will be set by the caller
-        return ret;
-    }
-
-    public static function acquire_timer(activity : ActivityImpl,
-                                         cancellable : Bool,
-                                         f : Float -> Void,
-                                         when : Float) : Scheduled
-    {
-        var ret = acquire(activity, cancellable);
-        ret.f_timer = f;
-        ret.when = when;
-        // prev and null will be set by the caller
-        return ret;
-    }
-
-    public static function release(s : Scheduled)
-    {
-        s.cancelId = null;
-        s.activity = null;
-        s.f_callme = null;
-        s.onShutdown = null;
-        s.f_timer = null;
-        s.prev = null;
-        s.next = null;
-        gPool.push(s);
-    }
-
-    private function new()
-    {
-    }
-
-    private static function acquire(activity : ActivityImpl, cancellable : Bool)
-    {
-        var ret : Scheduled;
-
-        if (gPool.length == 0) {
-            ret = new Scheduled();
-        }
-        else {
-            ret = gPool.pop();
-        }
-
-        if (cancellable) {
-            ret.cancelId = { };
-        }
-        ret.activity = activity;
-        return ret;
-    }
-
-    private static var gPool : Array<Scheduled> = [ ];
 }
 
 

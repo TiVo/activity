@@ -6,6 +6,20 @@ Introduction
 The Activity API is designed to enable a cross-platform mechanism for allowing multiple contexts of execution (not called 'threads' here because they do not represent true threads) to co-exist within a single program.
 
 
+Current State
+-------------
+
+For the current state of this haxelib, see STATUS.md in this repository.
+
+
+Conceptual Introduction
+-----------------------
+
+This library was presented for consideration publically at WWX 2015.  That presentation discusses the motivations for developing the activity haxelib as well as the conceptual framework it embodies.  The presentation is available:
+
+  https://github.com/kulick/wwx2015/blob/master/WWX2015_ActivityHaxelib.pdf
+
+
 What is an Activity?
 --------------------
 

@@ -1,3 +1,12 @@
--js ../../bin/ActivityTest.js
+######################################################################
+#
+# File: build-js.hxml
+#
+# Copyright 2014 TiVo Inc. All Rights Reserved.
+#
+######################################################################
+
+-js %OBJDIR%/ActivityTest.js
+-D AUDIT_ACTIVITY
 -main ActivityTest
 -lib activity

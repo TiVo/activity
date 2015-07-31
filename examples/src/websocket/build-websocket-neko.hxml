@@ -1,3 +1,11 @@
--neko ../../bin/WebSocketTest.n
+######################################################################
+#
+# File: build-websocket-neko.hxml
+#
+# Copyright 2014 TiVo Inc. All Rights Reserved.
+#
+######################################################################
+
+-neko %OBJDIR%/WebSocketTest.n
 -main WebSocketTest
 -lib activity

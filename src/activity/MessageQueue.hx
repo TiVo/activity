@@ -1,18 +1,9 @@
-/**
- * Copyright 2015 TiVo, Inc.
+/** *************************************************************************
+ * MessageQueue.hx
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- **/
+ * Copyright 2014 TiVo, Inc.
+ ************************************************************************** **/
+
 package activity;
 
 import activity.Activity;
@@ -54,9 +45,10 @@ class MessageQueue<T>
 {
     /**
      * The sender property is the MessageSender that can be used by any
-     * Activity to send messages to one of the Activities registered with the
-     * MessageReceiver.  The Activity that receives the message is chosen to
-     * be the one predicted to be able to handle the message the soonest.
+     * context of execution - Activity or not - to send messages to one of the
+     * Activities registered with the MessageReceiver.  The Activity that
+     * receives the message is chosen to be the one predicted to be able to
+     * handle the message the soonest.
      **/
     public var sender(default, null) : MessageSender<T>;
     /**

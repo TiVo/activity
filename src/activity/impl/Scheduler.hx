@@ -1,25 +1,15 @@
-/**
- * Copyright 2015 TiVo, Inc.
+/** *************************************************************************
+ * Scheduler.hx
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- **/
+ * Copyright 2014 TiVo, Inc.
+ ************************************************************************** **/
+
 package activity.impl;
 
 // cpp, neko, cs, and java targets support threading
 #if (cpp || neko || cs || java)
+// Not quite ready for prime time yet; depends upon custom changes to haxe/hxcpp.
 //typedef Scheduler = activity.impl.MultiThreadedScheduler;
-// Temporary, until MultiThreadedScheduler is implemented; allows testing
-// single-threaded implementation for cpp target
 typedef Scheduler = activity.impl.SingleThreadedScheduler;
 // js and flash targets do not control the main loop and must use timers
 #elseif (js || flash || flash8)

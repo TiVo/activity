@@ -1,3 +1,11 @@
--cpp ../../bin/HttpDownloader
+######################################################################
+#
+# File: build-cpp.hxml
+#
+# Copyright 2014 TiVo Inc. All Rights Reserved.
+#
+######################################################################
+
+-cpp %OBJDIR%/HttpDownloader
 -main HttpDownloader
 -lib activity
