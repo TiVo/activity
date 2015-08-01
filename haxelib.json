@@ -8,6 +8,7 @@
   "contributors": [ "TiVo" ],
   "releasenote" : "none",
   "binaryversion": 1,
+  "classPath": "src",
   "dependencies": {
   }
 }
